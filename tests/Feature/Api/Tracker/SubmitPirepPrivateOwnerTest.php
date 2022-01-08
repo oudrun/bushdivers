@@ -9,6 +9,7 @@ use App\Models\Contract;
 use App\Models\ContractCargo;
 use App\Models\Enums\AirlineTransactionTypes;
 use App\Models\Enums\FinancialConsts;
+use App\Models\Enums\PointsType;
 use App\Models\Enums\TransactionTypes;
 use App\Models\Fleet;
 use App\Models\FlightLog;
@@ -56,7 +57,6 @@ class SubmitPirepPrivateOwnerTest extends TestCase
             'current_airport_id' => 'AYMR',
             'user_id' => $this->user->id,
             'flight_time_mins' => 0,
-            'is_rental' => false,
             'owner_id' => $this->user->id
         ]);
         DB::table('cargo_types')->insert([
@@ -170,11 +170,39 @@ class SubmitPirepPrivateOwnerTest extends TestCase
 
         $this->postJson('/api/pirep/submit', $data);
 
-        $pp = (80 / 100) * $this->contract->contract_value;
+        $pp = (60 / 100) * $this->contract->contract_value;
 
         $this->assertDatabaseHas('user_accounts', [
             'flight_id' => $this->pirep->id,
             'total' => $pp
+        ]);
+    }
+
+    public function test_return_home_bonus_not_given_for_private()
+    {
+        Sanctum::actingAs(
+            $this->user,
+            ['*']
+        );
+        $startTime = "05/10/2021 01:00:00";
+        $endTime = "05/10/2021 01:30:00";
+
+        $data = [
+            'pirep_id' => $this->pirep->id,
+            'fuel_used' => 25,
+            'distance' => 76,
+            'landing_rate' => -149.12,
+            'block_off_time'=> $startTime,
+            'block_on_time' => $endTime
+        ];
+
+        $this->postJson('/api/pirep/submit', $data);
+
+        $pp = (60 / 100) * $this->contract->contract_value;
+
+        $this->assertDatabaseMissing('points', [
+            'pirep_id' => $this->pirep->id,
+            'type_name' => PointsType::HOME_HUB_LABEL
         ]);
     }
 
@@ -212,6 +240,11 @@ class SubmitPirepPrivateOwnerTest extends TestCase
         $this->assertDatabaseHas('user_accounts', [
             'flight_id' => $this->pirep->id,
             'type' => TransactionTypes::FlightFeesGround
+        ]);
+
+        $this->assertDatabaseMissing('user_accounts', [
+            'flight_id' => $this->pirep->id,
+            'type' => TransactionTypes::Bonus
         ]);
     }
 

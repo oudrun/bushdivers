@@ -36,9 +36,9 @@ class CalculatePirepPoints
         $this->storePirepPointsEntry->execute($pirep->id, PointsType::COMPLETED_FLIGHT_LABEL, PointsType::COMPLETED_FLIGHT);
 
         // hub
-        $aircraft = Aircraft::find($pirep->aircraft_id);
-        if (!$aircraft->is_rental) {
-            if ($pirep->destination_airport_id == $aircraft->hub_id) {
+        if (!$pirep->is_rental) {
+            $aircraft = Aircraft::find($pirep->aircraft_id);
+            if ($pirep->destination_airport_id == $aircraft->hub_id && $aircraft->owner_id == 0) {
                 $this->storePirepPointsEntry->execute($pirep->id, PointsType::HOME_HUB_LABEL, PointsType::HOME_HUB);
                 $this->addUserTransaction->execute($pirep->user_id, TransactionTypes::Bonus, FinancialConsts::HubBonus,
                     $pirep->id);
