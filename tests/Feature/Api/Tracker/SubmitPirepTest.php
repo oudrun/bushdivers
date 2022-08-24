@@ -85,7 +85,10 @@ class SubmitPirepTest extends TestCase
         ]);
         $this->contractCargo = ContractCargo::factory()->create([
             'contract_id' => $this->contract->id,
-            'current_airport_id' => $this->contract->dep_airport_id
+            'current_airport_id' => $this->contract->dep_airport_id,
+            'dep_airport_id' => 'AYMR',
+            'arr_airport_id' => 'AYMN',
+            'user_id' => $this->user->id
         ]);
         $this->pirep = Pirep::factory()->create([
             'user_id' => $this->user->id,
@@ -661,7 +664,8 @@ class SubmitPirepTest extends TestCase
         $this->assertDatabaseHas('contract_cargos', [
             'id' => $this->contractCargo->id,
             'is_completed' => false,
-            'current_airport_id' => 'AYTE'
+            'current_airport_id' => 'AYTE',
+            'user_id' => null
         ]);
     }
 
@@ -968,12 +972,16 @@ class SubmitPirepTest extends TestCase
 
         $c1 = ContractCargo::factory()->create([
             'contract_id' => $contract1->id,
-            'current_airport_id' => $contract1->dep_airport_id
+            'current_airport_id' => $contract1->dep_airport_id,
+            'dep_airport_id' => 'AYMR',
+            'arr_airport_id' => 'AYMN'
         ]);
 
         $c2 = ContractCargo::factory()->create([
             'contract_id' => $contract2->id,
-            'current_airport_id' => $contract2->dep_airport_id
+            'current_airport_id' => $contract2->dep_airport_id,
+            'dep_airport_id' => 'AYMR',
+            'arr_airport_id' => 'WAVG'
         ]);
 
         $pirep = Pirep::factory()->create([

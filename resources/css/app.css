@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
 .link {
     @apply text-orange-400;
 }
@@ -17,44 +21,6 @@ ul.disc {
 h1 {
     @apply text-lg;
 }
-
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-
-    /* Support for IE. */
-    font-feature-settings: 'liga';
-}
-/* Rules for sizing the icon. */
-.material-icons.md-18 { font-size: 18px; }
-.material-icons.md-24 { font-size: 24px; }
-.material-icons.md-36 { font-size: 36px; }
-.material-icons.md-48 { font-size: 48px; }
-
-/* Rules for using icons as black on a light background. */
-.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
-.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
-
-/* Rules for using icons as white on a dark background. */
-.material-icons.md-light { color: rgba(255, 255, 255, 1); }
-.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
 
 .nav-link {
     @apply text-gray-700 px-3 py-2 rounded-md text-sm font-medium;
@@ -76,23 +42,22 @@ h1 {
     @apply rounded px-2 py-1;
 }
 .btn-primary {
-    @apply bg-gray-800 text-white;
-}
-.btn-primary:hover {
-    @apply bg-gray-700;
-}
-.btn-primary:focus {
-    @apply bg-gray-900;
-}
-
-.btn-secondary {
     @apply bg-orange-500 text-white;
 }
-.btn-secondary:hover {
+.btn-primary:hover {
     @apply bg-orange-400;
 }
-.btn-secondary:focus {
+.btn-primary:focus {
     @apply bg-orange-500;
+}
+.btn-secondary {
+    @apply bg-gray-800 text-white;
+}
+.btn-secondary:hover {
+    @apply bg-gray-700;
+}
+.btn-secondary:focus {
+    @apply bg-gray-900;
 }
 
 .btn-light {
@@ -138,10 +103,10 @@ h1 {
 }
 
 .table tbody>tr:hover {
-    @apply bg-gray-50 cursor-pointer;
+    @apply bg-gray-50;
 }
 .table-condensed tbody>tr:hover {
-    @apply bg-gray-50 cursor-pointer;
+    @apply bg-gray-50;
 }
 :root {
     --tooltip-text-color: white;
@@ -242,7 +207,7 @@ h1 {
 }
 
 .map-container-full {
-    height: calc(100vh - 3rem);
+    height: calc(100vh - 4rem);
 }
 
 * {
@@ -252,7 +217,7 @@ h1 {
 
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-    width: 0.9rem;
+    width: 0.5rem;
 }
 
 *::-webkit-scrollbar-track {
@@ -261,6 +226,26 @@ h1 {
 
 *::-webkit-scrollbar-thumb {
     background-color: #A1A1AA;
-    border-radius: 0.9rem;
+    border-radius: 0.5rem;
     border: 1px solid #F4F4F5;
+}
+
+.ribbon {
+    width: 200px;
+    padding: 16px;
+    z-index: 20;
+    @apply absolute text-center text-white bg-orange-500 cursor-pointer;
+}
+
+.ribbon-sticky {
+    position: fixed;
+}
+
+.ribbon-top    { top: 25px; }
+.ribbon-bottom { bottom: 25px; }
+.ribbon-left   { left: -50px; }
+.ribbon-right  { right: -50px; }
+
+.ribbon-bottom.ribbon-right {
+    transform: rotate(-45deg);
 }

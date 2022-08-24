@@ -69,12 +69,13 @@ class ProcessPirepSubmissionController extends Controller
             $pirep->submitted_at = Carbon::now('UTC');
             $pirep->block_off_time = $blockOffTime;
             $pirep->block_on_time = Carbon::now('UTC');
+            $pirep->is_manual = true;
             $pirep->save();
 
             $pc = PirepCargo::where('pirep_id', $pirep->id)->get();
             foreach ($pc as $c) {
                 $contractCargo = ContractCargo::find($c->contract_cargo_id);
-                $this->updateContractCargoProgress->execute($contractCargo->id, $pirep->destination_airport_id);
+                $this->updateContractCargoProgress->execute($contractCargo->id, $pirep->destination_airport_id, $pirep->id);
             }
 
             // process points and financials

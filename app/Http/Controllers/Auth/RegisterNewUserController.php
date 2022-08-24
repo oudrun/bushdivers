@@ -14,11 +14,14 @@ use App\Services\Finance\AddAirlineTransaction;
 use App\Services\Finance\AddUserTransaction;
 use App\Services\User\CreateApiToken;
 use App\Services\User\CreateUser;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Uuid;
 
 class RegisterNewUserController extends Controller
 {
@@ -65,6 +68,23 @@ class RegisterNewUserController extends Controller
         // send email
         $body = MailTypes::register($user);
         $this->sendEmail->execute($body);
+
+//        try {
+//            $akuser = DB::connection('mysql_ak')->table('users')->where('email', $request->email)->count();
+//            if ($akuser < 1) {
+//                DB::connection('mysql_ak')->table('users')->insert([
+//                    'rank_id' => 1,
+//                    'name' => $request->name,
+//                    'email' => $request->email,
+//                    'password' => $user->password,
+//                    'api_token' => Uuid::uuid4(),
+//                    'created_at' => Carbon::now(),
+//                    'updated_at' => Carbon::now()
+//                ]);
+//            }
+//        } catch (\Exception) {
+//            //
+//        }
 
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {

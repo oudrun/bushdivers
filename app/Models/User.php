@@ -46,14 +46,16 @@ class User extends Authenticatable
     protected $appends = [
         'private_name',
         'pilot_id',
-        'user_roles'
+        'user_roles',
+        'balance'
     ];
 
     public function getPrivateNameAttribute()
     {
-        $words = explode(' ', $this->name);
-        if (count($words) >= 2) {
-            return $words[0] . ' ' .  end($words)[0];
+        $split = explode(' ', $this->name);
+
+        if (count($split) >= 2) {
+            return $split[0] . ' ' . mb_substr($split[1], 0, 1);
         } else {
             return $this->name;
         }
@@ -67,8 +69,12 @@ class User extends Authenticatable
 
     public function getCurrentBidsAttribute()
     {
-        $bookings = Contract::where('user_id', $this->id)->where('is_completed', false)->get();
-        return $bookings->count();
+        $customBookings = Contract::where('user_id', $this->id)->where('is_completed', false)->count();
+        $bdBookings = Contract::where('is_available', false)
+            ->where('is_completed', false)
+            ->where('user_id', null)
+            ->count();
+        return $customBookings + $bdBookings;
     }
 
     public function getRank()
@@ -101,7 +107,7 @@ class User extends Authenticatable
 
     public function awards()
     {
-        return $this->belongsToMany(Award::class, 'award_user');
+        return $this->belongsToMany(Award::class, 'award_user')->orderBy('awards.type')->orderBy('awards.value');
     }
 
     public function location()

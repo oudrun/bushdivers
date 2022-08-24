@@ -24,12 +24,11 @@ class CancelContractController extends Controller
     public function __invoke(Request $request): RedirectResponse
     {
         $contract = Contract::find($request->id);
-
+        $contractCargo = ContractCargo::where('contract_id', $contract->id)->get();
         // check if contract has cargo in a non-completed pirep
         $cargo = ContractCargo::where('contract_id', $contract->id)->pluck('id');
         $pc = PirepCargo::whereIn('contract_cargo_id', $cargo)->pluck('pirep_id');
-        $pirepsCount = Pirep::where('user_id', Auth::user()->id)
-            ->where('state', '<>', PirepState::ACCEPTED)
+        $pirepsCount = Pirep::where('state', '<>', PirepState::ACCEPTED)
             ->whereIn('id', $pc)
             ->count();
 
@@ -37,10 +36,13 @@ class CancelContractController extends Controller
             return redirect()->back()->with(['error' => 'Contract is part of an active dispatch and cannot be cancelled']);
         }
 
-        // set contract to not available
-        $contract->is_available = true;
-        $contract->user_id = null;
-        $contract->save();
+        if ($contract->user_id != Auth::user()->id && !Auth::user()->is_admin) {
+            return redirect()->back()->with(['error' => 'It is not possible to cancel this contract']);
+        }
+
+        // delete contract to not available
+        ContractCargo::where('contract_id', $contract->id)->delete();
+        $contract->delete();
 
         $user = User::find(Auth::user()->id);
         if ($user->points >= 1) {
@@ -48,6 +50,6 @@ class CancelContractController extends Controller
             $user->save();
         }
 
-        return redirect()->back()->with(['success' => 'Contract bid cancelled successfully']);
+        return redirect()->back()->with(['success' => 'Active contract cancelled successfully']);
     }
 }

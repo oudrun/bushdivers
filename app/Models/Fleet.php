@@ -13,4 +13,9 @@ class Fleet extends Model
     {
         return $this->hasMany(Aircraft::class, 'fleet_id', 'id');
     }
+
+    public function manufacturer()
+    {
+        return $this->belongsTo(Manufacturer::class);
+    }
 }

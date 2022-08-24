@@ -61,12 +61,14 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
     Route::get('/intro', \App\Http\Controllers\Crew\ShowIntroController::class)
         ->name('intro');
-    Route::get('/roster', \App\Http\Controllers\Crew\ShowPilotRosterController::class)
+    Route::any('/roster', \App\Http\Controllers\Crew\ShowPilotRosterController::class)
         ->name('roster');
     Route::get('/profile', \App\Http\Controllers\Crew\ShowProfileController::class)
         ->name('profile.index');
     Route::put('/profile', \App\Http\Controllers\Crew\UpdateProfileController::class)
         ->name('profile.update');
+    Route::put('/settings/map', \App\Http\Controllers\Crew\UpdateMapSettingController::class)
+        ->name('profile.map');
     Route::get('/logbook', \App\Http\Controllers\Pireps\ShowLogbookController::class)
         ->name('logbook');
     Route::get('/logbook/{pirep}', \App\Http\Controllers\Pireps\ShowPirepController::class)
@@ -78,8 +80,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-finances', \App\Http\Controllers\Crew\ShowUserFinancesController::class)
         ->name('crew.finances');
 
-    Route::get('/resources', \App\Http\Controllers\General\ShowResourcesController::class)
+    Route::get('/resources', \App\Http\Controllers\Resources\ShowResourcesController::class)
         ->name('resources');
+    Route::post('/resources', \App\Http\Controllers\Resources\AddResourceController::class)
+        ->name('resources.add');
 
     Route::get('/fleet-aircraft', \App\Http\Controllers\Fleet\ShowFleetAircraftController::class)
         ->name('fleet.aircraft');
@@ -100,9 +104,31 @@ Route::middleware('auth')->group(function () {
     Route::post('/aircraft/maintenance', \App\Http\Controllers\Fleet\PerformMaintenanceController::class)
         ->name('aircraft.maintenance');
 
+    // marketplace
+    Route::get('/marketplace', \App\Http\Controllers\MarketPlace\ShowMarketPlaceController::class)
+        ->name('marketplace');
+    Route::get('/marketplace/{manufacturer}', \App\Http\Controllers\MarketPlace\ShowManufacturerController::class)
+        ->name('marketplace.manufacture');
+    Route::get('/marketplace/purchase/new/{fleet}', \App\Http\Controllers\MarketPlace\ShowPurchaseNewController::class)
+        ->name('marketplace.new');
+//    Route::get('/marketplace/purchase/used/{id}', \App\Http\Controllers\MarketPlace\ShowPurchaseUsedController::class)
+//        ->name('marketplace.used');
+//    Route::get('/marketplace/list/used/{fleet}', \App\Http\Controllers\MarketPlace\ShowUsedAircraftController::class)
+//        ->name('marketplace.list.used');
+    Route::post('/marketplace/purchase', \App\Http\Controllers\MarketPlace\PurchaseController::class)
+        ->name('marketplace.purchase');
+    Route::post('/marketplace/finance', \App\Http\Controllers\MarketPlace\FinanceController::class)
+        ->name('marketplace.finance');
+    Route::post('/marketplace/finance/cancel/{id}', \App\Http\Controllers\MarketPlace\CancelFinanceController::class)
+        ->name('marketplace.cancel.finance');
+    Route::get('/my-aircraft', \App\Http\Controllers\Aircraft\ShowMyAircraftController::class)
+        ->name('aircraft.mine');
+    Route::post('/marketplace/sell/{id}', \App\Http\Controllers\MarketPlace\SellAircraftController::class)
+        ->name('marketplace.sell');
+
 
     // Flights
-    Route::get('/my-contracts', \App\Http\Controllers\Contracts\ShowActiveContractsController::class)
+    Route::get('/available-contracts', \App\Http\Controllers\Contracts\ShowActiveContractsController::class)
         ->name('bids');
     Route::get('/completed-contracts', \App\Http\Controllers\Contracts\ShowCompletedContractsController::class)
         ->name('contracts.completed');
@@ -116,8 +142,8 @@ Route::middleware('auth')->group(function () {
         ->name('contracts');
     Route::post('/contracts', \App\Http\Controllers\Contracts\FindContractsController::class)
         ->name('contracts.search');
-    Route::post('/contracts/bid', \App\Http\Controllers\Contracts\BidForContractController::class)
-        ->name('contracts.bid');
+//    Route::post('/contracts/bid', \App\Http\Controllers\Contracts\BidForContractController::class)
+//        ->name('contracts.bid');
     Route::post('/contracts/custom', \App\Http\Controllers\Contracts\CreateCustomRouteController::class)
         ->name('contracts.custom');
     Route::post('/contracts/cancel', \App\Http\Controllers\Contracts\CancelContractController::class)
@@ -160,11 +186,9 @@ Route::middleware('auth')->group(function () {
             ->name('admin.resources');
         Route::post('/admin/categories', \App\Http\Controllers\Admin\Resources\AddResourceCategoryController::class)
             ->name('admin.categories.add');
-        Route::post('/admin/resources', \App\Http\Controllers\Admin\Resources\AddResourcesController::class)
-            ->name('admin.resources.add');
-        Route::delete('/admin/resources/{id}', \App\Http\Controllers\Admin\Resources\RemoveResourcesController::class)
-            ->name('admin.resources.delete');
-        Route::patch('/admin/resources/{id}', \App\Http\Controllers\Admin\Resources\EditResourcesController::class)
-            ->name('admin.resources.edit');
+        Route::post('/admin/resources/approve/{id}', \App\Http\Controllers\Admin\Resources\ApproveResourceController::class)
+            ->name('admin.resources.approve');
+        Route::post('/admin/resources/reject/{id}', \App\Http\Controllers\Admin\Resources\RejectResourceController::class)
+            ->name('admin.resources.reject');
     });
 });

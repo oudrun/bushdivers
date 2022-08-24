@@ -87,13 +87,31 @@ class ShowDispatchController extends Controller
 
     protected function getCargoForDispatch($currentLocation, $userId): Collection
     {
-        return ContractCargo::with('currentAirport', 'contract', 'contract.depAirport', 'contract.arrAirport')
+        $bd = ContractCargo::with('currentAirport', 'contract', 'contract.depAirport', 'contract.arrAirport')
+            ->where('current_airport_id', $currentLocation)
+            ->where('is_completed', false)
+            ->where('is_available', true)
+            ->whereHas('contract', function ($q) {
+                $q->where('is_completed', false)
+                    ->where('is_available', false)
+                    ->where('user_id', null);
+            })
+            ->orderBy('heading')
+            ->orderBy('arr_airport_id')
+            ->get();
+//        dd(json_encode($bd));
+        $personal = ContractCargo::with('currentAirport', 'contract', 'contract.depAirport', 'contract.arrAirport')
             ->where('current_airport_id', $currentLocation)
             ->where('is_completed', false)
             ->whereHas('contract', function ($q) use ($userId) {
                 $q->where('user_id', $userId)
                     ->where('is_completed', false);
-            })->get();
+            })
+            ->orderBy('heading')
+            ->orderBy('arr_airport_id')
+            ->get();
+
+        return collect($bd)->merge($personal);
     }
 
     protected function getAircraftForDispatch($currentLocation): Collection

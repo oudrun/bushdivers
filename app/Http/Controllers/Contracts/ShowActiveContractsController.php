@@ -19,12 +19,32 @@ class ShowActiveContractsController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        $contracts = Contract::with('depAirport', 'arrAirport', 'cargo', 'cargo.currentAirport')
+        $customContracts = Contract::with('depAirport', 'arrAirport', 'cargo', 'cargo.currentAirport')
             ->where('is_completed', false)
+            ->where('is_available', false)
             ->where('user_id', Auth::user()->id)
-            ->orderBy('expires_at', 'asc')
+            ->orderBy('dep_airport_id', 'asc')
+            ->orderBy('heading', 'asc')
             ->get();
 
-        return Inertia::render('Contracts/MyContracts', ['contracts' => $contracts]);
+        $contracts = Contract::with('depAirport', 'arrAirport', 'cargo', 'cargo.currentAirport')
+            ->where('is_completed', false)
+            ->where('is_available', false)
+            ->where('contract_type_id', 1)
+            ->where('user_id', null)
+            ->orderBy('dep_airport_id', 'asc')
+            ->orderBy('heading', 'asc')
+            ->get();
+
+        $community = Contract::with('depAirport', 'arrAirport', 'cargo', 'cargo.currentAirport')
+            ->where('is_completed', false)
+            ->where('is_available', false)
+            ->where('contract_type_id', 3)
+            ->where('user_id', null)
+            ->orderBy('dep_airport_id', 'asc')
+            ->orderBy('heading', 'asc')
+            ->get();
+
+        return Inertia::render('Contracts/MyContracts', ['contracts' => $contracts, 'custom' => $customContracts, 'community' => $community]);
     }
 }

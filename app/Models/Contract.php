@@ -11,9 +11,24 @@ class Contract extends Model
 
     protected $casts = ['expires_at', 'completed_at'];
 
+    protected $fillable = [
+        'contract_value',
+        'mins_updated',
+        'hour_updated',
+        'hours_updated',
+        'half_updated',
+        'day_updated',
+        'days_updated'
+    ];
+
     public function cargo()
     {
         return $this->hasMany(ContractCargo::class);
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(ContractType::class);
     }
 
     public function depAirport()

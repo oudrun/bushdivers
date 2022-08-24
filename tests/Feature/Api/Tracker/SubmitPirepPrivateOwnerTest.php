@@ -73,7 +73,10 @@ class SubmitPirepPrivateOwnerTest extends TestCase
         ]);
         $this->contractCargo = ContractCargo::factory()->create([
             'contract_id' => $this->contract->id,
-            'current_airport_id' => $this->contract->dep_airport_id
+            'current_airport_id' => $this->contract->dep_airport_id,
+            'dep_airport_id' => 'AYMR',
+            'arr_airport_id' => 'AYMN',
+            'user_id' => $this->user->id
         ]);
         $this->pirep = Pirep::factory()->create([
             'user_id' => $this->user->id,
@@ -148,34 +151,6 @@ class SubmitPirepPrivateOwnerTest extends TestCase
         $response = $this->postJson('/api/pirep/submit', $data);
 
         $response->assertStatus(200);
-    }
-
-    public function test_pilot_pay_calc_for_private()
-    {
-        Sanctum::actingAs(
-            $this->user,
-            ['*']
-        );
-        $startTime = "05/10/2021 01:00:00";
-        $endTime = "05/10/2021 01:30:00";
-
-        $data = [
-            'pirep_id' => $this->pirep->id,
-            'fuel_used' => 25,
-            'distance' => 76,
-            'landing_rate' => -149.12,
-            'block_off_time'=> $startTime,
-            'block_on_time' => $endTime
-        ];
-
-        $this->postJson('/api/pirep/submit', $data);
-
-        $pp = (60 / 100) * $this->contract->contract_value;
-
-        $this->assertDatabaseHas('user_accounts', [
-            'flight_id' => $this->pirep->id,
-            'total' => $pp
-        ]);
     }
 
     public function test_return_home_bonus_not_given_for_private()
@@ -325,6 +300,35 @@ class SubmitPirepPrivateOwnerTest extends TestCase
         $this->assertDatabaseHas('contract_cargos', [
             'id' => $this->contractCargo->id,
             'current_airport_id' => $this->pirep->destination_airport_id
+        ]);
+    }
+
+    public function test_pilot_pay_correct()
+    {
+        Sanctum::actingAs(
+            $this->user,
+            ['*']
+        );
+        $startTime = "05/10/2021 01:00:00";
+        $endTime = "05/10/2021 01:30:00";
+        $companyPay = $this->contractCargo->contract_value;
+        $pilotPay = (FinancialConsts::PrivatePilotPay / 100) * $companyPay;
+
+        $data = [
+            'pirep_id' => $this->pirep->id,
+            'fuel_used' => 25,
+            'distance' => 76,
+            'landing_rate' => -149.12,
+            'block_off_time'=> $startTime,
+            'block_on_time' => $endTime
+        ];
+
+        $this->postJson('/api/pirep/submit', $data);
+
+        $this->assertDatabaseHas('user_accounts', [
+            'flight_id' => $this->pirep->id,
+            'type' => TransactionTypes::FlightPay,
+            'total' => $pilotPay
         ]);
     }
 }

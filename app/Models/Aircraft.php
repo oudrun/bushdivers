@@ -11,7 +11,12 @@ class Aircraft extends Model
     use HasFactory;
 
     protected $appends = [
-        'maintenance_status'
+        'maintenance_status',
+        'total_condition'
+    ];
+
+    protected $fillable = [
+        'owner_id'
     ];
 
     protected $casts = [
@@ -70,5 +75,14 @@ class Aircraft extends Model
         }
 
         return $status;
+    }
+
+    public function getTotalConditionAttribute()
+    {
+        $engines = AircraftEngine::where('aircraft_id', $this->id)->get();
+        $numEngines = $engines->count();
+        $totalEngineWear = $engines->sum('wear');
+        $total = $this->wear + $totalEngineWear;
+        return round($total / ($numEngines + 1));
     }
 }

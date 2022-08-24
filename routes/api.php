@@ -28,11 +28,17 @@ Route::post('/cargo/split', \App\Http\Controllers\Dispatch\SplitCargoController:
     ->name('cargo.split');
 Route::get('/resources/categories', \App\Http\Controllers\Admin\Resources\GetCategoriesController::class)
     ->name('resources.categories');
-
+Route::post('/contracts/bid', \App\Http\Controllers\Contracts\BidForContractController::class)
+    ->name('contracts.bid');
+Route::get('/aircraft/price/{id}', \App\Http\Controllers\MarketPlace\GetAircraftPriceController::class)
+    ->name('aircraft.price');
+Route::get('/resources', \App\Http\Controllers\Resources\GetResourcesController::class)
+    ->name('api.resources');
+Route::put('/admin/categories', \App\Http\Controllers\Admin\Resources\EditResourceCategoryController::class)
+    ->name('admin.categories.edit');
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/contracts/generate', \App\Http\Controllers\Contracts\GenerateContractsController::class);
     Route::get('/dispatch', \App\Http\Controllers\Tracker\GetActiveDispatchController::class);
     Route::get('/dispatch/cargo', \App\Http\Controllers\Tracker\GetDispatchCargoController::class);
     Route::post('/log', \App\Http\Controllers\Tracker\AddFlightLogController::class);
